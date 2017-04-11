@@ -1,6 +1,7 @@
 const fs = require('fs');
 const {ipcRenderer} = require('electron');
 const Vue = require('vue');
+const compiler = require('vue-template-compiler');
 
 class ElectronVue extends Vue {
     constructor(...args) {
@@ -17,7 +18,12 @@ class ElectronVue extends Vue {
                 }
             }, args[0].data.electronVue);
 
-            args[0].template = ElectronVue.getTemplate(args[0].template);
+            // if there's not already a render method then generate one from
+            // the template attribute.
+            if(!args[0].render)
+                args[0].render = ElectronVue.createRenderer(args[0].template);
+
+            // register ipc callbacks
             ElectronVue.ipcRegistration(args[0].data.electronVue.ipc);
         }
 
@@ -28,19 +34,19 @@ class ElectronVue extends Vue {
      * This function adds the ability to reference html files
      * as templates in addition to the standard vue implementation.
      * @param {string} template Template value
-     * @return {string} This returns a supported Vue template value.
+     * @return {function} Vue render method
      */
-    static getTemplate(template) {
+    static createRenderer(template) {
         if(template && template.endsWith('.html')) {
             try {
-                return fs.readFileSync(template, 'utf-8');
+                template = fs.readFileSync(template, 'utf-8');
             } catch(err) {
                 console.error(err);
-                return '<div v-bind:style="electronVue.errorStyles" v-text="electronVue.errorText"></div>';
+                template = '<div v-bind:style="electronVue.errorStyles" v-text="electronVue.errorText"></div>';
             }
         }
 
-        return template;
+        return compiler.compileToFunctions(template).render;
     }
 
     /**
