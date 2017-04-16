@@ -6,7 +6,11 @@ const compiler = require('vue-template-compiler');
 class ElectronVue extends Vue {
     constructor(...args) {
         if(args.length) {
-            // mix ev and vue data objects
+            // make sure we have a data object
+            if(!args[0].data)
+                args[0].data = {};
+
+            // mix ev object with defaults
             args[0].data.electronVue = Object.assign({
                 errorText: 'EV Template Error',
                 errorStyles: {
@@ -19,15 +23,42 @@ class ElectronVue extends Vue {
             }, args[0].data.electronVue);
 
             // if there's not already a render method then generate one from
-            // the template attribute.
+            // the template attribute
             if(!args[0].render)
                 args[0].render = ElectronVue.createRenderer(args[0].template);
+
+            // register local components which just means to convert component
+            // template attributes to render functions
+            if(args[0].components)
+                ElectronVue.registerComponents(args[0].components);
 
             // register ipc callbacks
             ElectronVue.ipcRegistration(args[0].data.electronVue.ipc);
         }
 
         super(...args);
+    }
+
+    /**
+     * This function recusively loops through components and creates
+     * render functions for template attributes.
+     * @see {@link https://vuejs.org/v2/guide/components.html#Local-Registration}
+     * @param {object} components Local registration component object
+     */
+    static registerComponents(components) {
+        for(let name in components) {
+            let component = components[name];
+
+            // if there's not a render method then generate one from the
+            // template attribute
+            if(!component.render)
+                component.render = ElectronVue.createRenderer(component.template);
+
+            // if this component has child components then recursively
+            // register them too
+            if(component.components)
+                ElectronVue.registerComponents(component.components);
+        }
     }
 
     /**
