@@ -15,7 +15,7 @@ describe('Template Rendering Tests', function() {
         });
 
         renderer.renderToString(v, (error, html) => {
-            assert.equal(html, '<div server-rendered="true">template as string</div>');
+            assert.equal(html, '<div data-server-rendered="true">template as string</div>');
         });
     });
 
@@ -28,7 +28,7 @@ describe('Template Rendering Tests', function() {
         });
 
         renderer.renderToString(v, (error, html) => {
-            assert.equal(html, '<div server-rendered="true">template file</div>');
+            assert.equal(html, '<div data-server-rendered="true">template file</div>');
         });
     });
 
@@ -49,7 +49,7 @@ describe('Template Rendering Tests', function() {
         });
 
         renderer.renderToString(v, (error, html) => {
-            assert.equal(html, '<div server-rendered="true">app<div>child</div></div>');
+            assert.equal(html, '<div data-server-rendered="true">app<div>child</div></div>');
         });
     });
 
@@ -82,7 +82,7 @@ describe('Template Rendering Tests', function() {
         });
 
         renderer.renderToString(v, (error, html) => {
-            assert.equal(html, '<div server-rendered="true">app<div>child</div><div>childb<div>childb</div></div></div>');
+            assert.equal(html, '<div data-server-rendered="true">app<div>child</div><div>childb<div>childb</div></div></div>');
         });
     });
 });

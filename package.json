@@ -22,11 +22,11 @@
   "homepage": "https://github.com/nullkeys/electron-vue#readme",
   "dependencies": {
     "electron": "^1.6.2",
-    "vue": "^2.2.6",
-    "vue-template-compiler": "^2.2.6"
+    "vue": "^2.3.0",
+    "vue-template-compiler": "^2.3.0"
   },
   "devDependencies": {
     "mocha": "^3.2.0",
-    "vue-server-renderer": "^2.2.6"
+    "vue-server-renderer": "^2.3.0"
   }
 }
