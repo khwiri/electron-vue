@@ -112,7 +112,7 @@ ipcMain.on('ping-pong', (event) => {
 });
 ```
 
-In the above example, you'll notice that the registered event name on the sidebarTest method on the ipc object is the spinal-case representation of the function name.  ElectronVue attempts to convert functions within this object during the registration process.  If this doesn't work for you, then you can always fallback to the following pattern for a specific event which lets you explicitly define your event name.  It's possible to use both patterns within the same ipc object.
+In the above example, you'll notice that the registered event name on the ipc object is the spinal-case representation of the function name.  ElectronVue attempts to convert functions within this object during the registration process.  If this doesn't work for you, then you can always fallback to the following pattern for a specific event which lets you explicitly define your event name.  It's possible to use both patterns within the same ipc object.
 ```js
 new ElectronVue({
     data: {
