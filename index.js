@@ -25,7 +25,7 @@ class ElectronVue extends Vue {
             // if there's not already a render method then generate one from
             // the template attribute
             if(!args[0].render)
-                args[0].render = ElectronVue.createRenderer(args[0].template);
+                args[0] = Object.assign(args[0], ElectronVue.createRenderer(args[0].template));
 
             // register local components which just means to convert component
             // template attributes to render functions
@@ -52,7 +52,7 @@ class ElectronVue extends Vue {
             // if there's not a render method then generate one from the
             // template attribute
             if(!component.render)
-                component.render = ElectronVue.createRenderer(component.template);
+                component.render = ElectronVue.createRenderer(component.template).render;
 
             // if this component has child components then recursively
             // register them too
@@ -77,7 +77,7 @@ class ElectronVue extends Vue {
             }
         }
 
-        return compiler.compileToFunctions(template).render;
+        return compiler.compileToFunctions(template);
     }
 
     /**
