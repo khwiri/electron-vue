@@ -85,4 +85,29 @@ describe('Template Rendering Tests', function() {
             assert.equal(html, '<div data-server-rendered="true">app<div>child</div><div>childb<div>childb</div></div></div>');
         });
     });
+
+    it('Template with static content test', function() {
+        const v = new ElectronVue({
+            template: '<div><div>static content</div></div>'
+        });
+
+        renderer.renderToString(v, (error, html) => {
+            assert.equal(html, '<div data-server-rendered="true"><div>static content</div></div>');
+        });
+    });
+
+    it('Component with static content test', function() {
+        const v = new ElectronVue({
+            template: '<static-component></static-component>',
+            components: {
+                'static-component': {
+                    template: '<div><div>static content</div></div>'
+                }
+            }
+        });
+
+        renderer.renderToString(v, (error, html) => {
+            assert.equal(html, '<div data-server-rendered="true"><div>static content</div></div>');
+        });
+    });
 });
