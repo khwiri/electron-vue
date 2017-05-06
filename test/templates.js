@@ -6,7 +6,7 @@ const serverRenderer = require('vue-server-renderer');
 describe('Template Rendering Tests', function() {
     const renderer = serverRenderer.createRenderer();
 
-    it('String Template Test', function() {
+    it('Template as string', function() {
         const v = new ElectronVue({
             template: '<div>{{ message }}</div>',
             data: {
@@ -19,7 +19,7 @@ describe('Template Rendering Tests', function() {
         });
     });
 
-    it('File Template Test', function() {
+    it('File as template', function() {
         const v = new ElectronVue({
             template: `${__dirname}/data/template.html`,
             data: {
@@ -32,7 +32,7 @@ describe('Template Rendering Tests', function() {
         });
     });
 
-    it('Simple Component Test', function() {
+    it('Simple component', function() {
         const v = new ElectronVue({
             data: {
                 app: 'app'
@@ -53,7 +53,7 @@ describe('Template Rendering Tests', function() {
         });
     });
 
-    it('Complex Component Test', function() {
+    it('File template with child components', function() {
         const v = new ElectronVue({
             data: {
                 app: 'app'
@@ -86,7 +86,7 @@ describe('Template Rendering Tests', function() {
         });
     });
 
-    it('Template with static content test', function() {
+    it('Template with static content', function() {
         const v = new ElectronVue({
             template: '<div><div>static content</div></div>'
         });
@@ -96,7 +96,7 @@ describe('Template Rendering Tests', function() {
         });
     });
 
-    it('Component with static content test', function() {
+    it('Component with static content', function() {
         const v = new ElectronVue({
             template: '<static-component></static-component>',
             components: {
