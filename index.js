@@ -6,9 +6,16 @@ const compiler = require('vue-template-compiler');
 class ElectronVue extends Vue {
     constructor(...args) {
         if(args.length) {
-            // make sure we have a data object
+            // This makes sure we have a data object and if
+            // it's a function then it's converted to an object.
+            // Converting the function to an object might limit the
+            // ability of callers to implement more dynamic data setup
+            // procedures.  This should probably be addressed in a future
+            // release.
             if(!args[0].data)
                 args[0].data = {};
+            else if(typeof args[0].data != 'object')
+                args[0].data = args[0].data();
 
             // mix ev object with defaults
             args[0].data.electronVue = Object.assign({
@@ -53,6 +60,12 @@ class ElectronVue extends Vue {
             // template attribute
             if(!component.render)
                 Object.assign(component, ElectronVue.createRenderer(component.template));
+
+            // if there's an ipc object on the child component then make sure
+            // it's registered too, and according to vue's documentation
+            // the data object on a component must be implemented as a function
+            if(component.data && component.data().electronVue)
+                ElectronVue.ipcRegistration(component.data().electronVue.ipc);
 
             // if this component has child components then recursively
             // register them too
