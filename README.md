@@ -81,7 +81,7 @@ new ElectronVue({
 ```
 
 ## Electron Messages
-ElectronVue attempts to make it easy to pass messages between your vue in the renderer process and the main process of an Electron application.  Take a look at the [Electron documentation](https://electron.atom.io/docs/api/ipc-main/#sending-messages) to see how this works under the hood.  Here's an example of how it works with an ElectronVue.
+ElectronVue attempts to make it easy to pass messages between your Vue in the renderer process and the main process of an Electron application.  Take a look at the [Electron documentation](https://electron.atom.io/docs/api/ipc-main/#sending-messages) to see how this works under the hood.  Here's an example of how it works with an ElectronVue.
 ```js
 // renderer process
 const {ipcRenderer} = require('electron');
@@ -89,13 +89,9 @@ const {ipcRenderer} = require('electron');
 new ElectronVue({
     el: '#app',
     template: 'app-template.html',
-    data: {
-        electronVue: {
-            ipc: {
-                pingPong(event, arg) {
-                    console.log(arg) // prints 'pong'
-                }
-            }
+    ipc: {
+        pingPong(event, arg) {
+            console.log(arg) // prints 'pong'
         }
     }
 });
@@ -115,16 +111,11 @@ ipcMain.on('ping-pong', (event) => {
 In the above example, you'll notice that the registered event name on the ipc object is the spinal-case representation of the function name.  ElectronVue attempts to convert functions within this object during the registration process.  If this doesn't work for you, then you can always fallback to the following pattern for a specific event which lets you explicitly define your event name.  It's possible to use both patterns within the same ipc object.
 ```js
 new ElectronVue({
-    data: {
-        electronVue: {
-            ipc: {
-                tableTennis: {
-                    channel: 'ping-pong',
-
-                    method: (event, arg) => {
-                        console.log(arg) // prints 'pong'
-                    }
-                }
+    ipc: {
+        tableTennis: {
+            channel: 'ping-pong',
+            method(event, arg) {
+                console.log(arg) // prints 'pong'
             }
         }
     }
