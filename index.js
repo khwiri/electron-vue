@@ -5,45 +5,58 @@ const compiler = require('vue-template-compiler');
 
 class ElectronVue extends Vue {
     constructor(...args) {
-        if(args.length) {
-            // This makes sure we have a data object and if
-            // it's a function then it's converted to an object.
-            // Converting the function to an object might limit the
-            // ability of callers to implement more dynamic data setup
-            // procedures.  This should probably be addressed in a future
-            // release.
-            if(!args[0].data)
-                args[0].data = {};
-            else if(typeof args[0].data != 'object')
-                args[0].data = args[0].data();
-
-            // mix ev object with defaults
-            args[0].data.electronVue = Object.assign({
-                errorText: 'EV Template Error',
-                errorStyles: {
-                    color: '#fff',
-                    background: '#f50000',
-                    textAlign: 'center',
-                    padding: '10px',
-                    borderRadius: '4px'
-                }
-            }, args[0].data.electronVue);
-
-            // if there's not already a render method then generate one from
-            // the template attribute
-            if(!args[0].render)
-                Object.assign(args[0], ElectronVue.createRenderer(args[0].template));
-
-            // register local components which just means to convert component
-            // template attributes to render functions
-            if(args[0].components)
-                ElectronVue.registerComponents(args[0].components);
-
-            // register ipc callbacks
-            ElectronVue.ipcRegistration(args[0].data.electronVue.ipc);
-        }
-
+        if(args.length)
+            ElectronVue.processArguments(args[0]);
         super(...args);
+    }
+
+    /**
+     * This method processes any incoming arguments and supplements them
+     * for ElectronVue's needs before any Vue initialization happens.
+     * @param {object} args The object defining a Vue as passed into this object's constructor
+     */
+    static processArguments(args) {
+        // This makes sure we have a data object and if
+        // it's a function then it's converted to an object.
+        // Converting the function to an object might limit the
+        // ability of callers to implement more dynamic data setup
+        // procedures.  This should probably be addressed in a future
+        // release.
+        if(!args.data)
+            args.data = {};
+        else if(typeof args.data != 'object')
+            args.data = args.data();
+
+        // mix ev object with defaults
+        args.data.electronVue = Object.assign({
+            errorText: 'EV Template Error',
+            errorStyles: {
+                color: '#fff',
+                background: '#f50000',
+                textAlign: 'center',
+                padding: '10px',
+                borderRadius: '4px'
+            }
+        }, args.data.electronVue);
+
+        // if there's not already a render method then generate one from
+        // the template attribute
+        if(!args.render)
+            Object.assign(args, ElectronVue.createRenderer(args.template));
+
+        // register local components which just means to convert component
+        // template attributes to render functions
+        if(args.components)
+            ElectronVue.processComponents(args.components);
+
+        // register a callback to use for ipc registration once the vue has
+        // been instantiated
+        args.mixins = [{
+            created() {
+                if(args.ipc)
+                    ElectronVue.ipcRegistration(this, args.ipc);
+            }
+        }];
     }
 
     /**
@@ -52,25 +65,28 @@ class ElectronVue extends Vue {
      * @see {@link https://vuejs.org/v2/guide/components.html#Local-Registration}
      * @param {object} components Local registration component object
      */
-    static registerComponents(components) {
+    static processComponents(components) {
         for(let name in components) {
             let component = components[name];
+
+            // register callbacks for each component so that their ipc callbacks
+            // can be registered once each component has been instantiated
+            component.mixins = [{
+                created() {
+                    if(component.ipc)
+                        ElectronVue.ipcRegistration(this, component.ipc);
+                }
+            }];
 
             // if there's not a render method then generate one from the
             // template attribute
             if(!component.render)
                 Object.assign(component, ElectronVue.createRenderer(component.template));
 
-            // if there's an ipc object on the child component then make sure
-            // it's registered too, and according to vue's documentation
-            // the data object on a component must be implemented as a function
-            if(component.data && component.data().electronVue)
-                ElectronVue.ipcRegistration(component.data().electronVue.ipc);
-
             // if this component has child components then recursively
             // register them too
             if(component.components)
-                ElectronVue.registerComponents(component.components);
+                ElectronVue.processComponents(component.components);
         }
     }
 
@@ -95,15 +111,16 @@ class ElectronVue extends Vue {
 
     /**
      * This registers all functions as callbacks for the main process.
+     * @param {object} thisArg A value to bind with callbacks so that they have an appropriate this.
      * @param {string} ipcCallbacks An object of callback methods to be registered.
      */
-    static ipcRegistration(ipc) {
+    static ipcRegistration(thisArg, ipc) {
         for(let name in ipc) {
             let callback = ipc[name];
             if(typeof callback == 'object')
-                ipcRenderer.on(ElectronVue.toSpinalCase(callback.channel), callback.method);
+                ipcRenderer.on(ElectronVue.toSpinalCase(callback.channel), callback.method.bind(thisArg));
             else
-                ipcRenderer.on(ElectronVue.toSpinalCase(name), callback);
+                ipcRenderer.on(ElectronVue.toSpinalCase(name), callback.bind(thisArg));
         }
     }
 
