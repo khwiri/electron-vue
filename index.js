@@ -55,6 +55,10 @@ class ElectronVue extends Vue {
             created() {
                 if(args.ipc)
                     ElectronVue.ipcRegistration(this, args.ipc);
+            },
+            destroyed() {
+                if(args.ipc)
+                    ElectronVue.ipcRemoveListeners(this, args.ipc);
             }
         }];
     }
@@ -75,6 +79,10 @@ class ElectronVue extends Vue {
                 created() {
                     if(component.ipc)
                         ElectronVue.ipcRegistration(this, component.ipc);
+                },
+                destroyed() {
+                    if(component.ipc)
+                        ElectronVue.ipcRemoveListeners(this, component.ipc);
                 }
             }];
 
@@ -115,12 +123,34 @@ class ElectronVue extends Vue {
      * @param {string} ipcCallbacks An object of callback methods to be registered.
      */
     static ipcRegistration(thisArg, ipc) {
-        for(let name in ipc) {
-            let callback = ipc[name];
-            if(typeof callback == 'object')
-                ipcRenderer.on(ElectronVue.toSpinalCase(callback.channel), callback.method.bind(thisArg));
-            else
-                ipcRenderer.on(ElectronVue.toSpinalCase(name), callback.bind(thisArg));
+        thisArg.$electronVue = {
+            ipcCallbacks: []
+        };
+
+        for(const name in ipc) {
+            const callback = ipc[name];
+            let channel = ElectronVue.toSpinalCase(name);
+            let boundCallback = callback.bind(thisArg);
+            if(typeof callback == 'object') {
+                channel = ElectronVue.toSpinalCase(callback.channel);
+                boundCallback = callback.method.bind(thisArg);
+            }
+
+            thisArg.$electronVue.ipcCallbacks.push({channel: channel, method: boundCallback});
+            ipcRenderer.on(channel, boundCallback);
+        }
+    }
+
+    /**
+     * This unregisters all ipc callback methods currently registered for this instance.  In other words,
+     * this removes all channels previously registered with the ipcRenderer.
+     * @param {object} thisArg The vue instance containing registered ipc callbacks.
+     */
+    static ipcRemoveListeners(thisArg) {
+        if(thisArg.$electronVue && this.$electronVue.ipcCallbacks) {
+            for(const callback of thisArg.$electronVue.ipcCallback) {
+                ipcRenderer.removeListener(callback.channel, callback.method);
+            }
         }
     }
 
