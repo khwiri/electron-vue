@@ -148,7 +148,7 @@ class ElectronVue extends Vue {
      */
     static ipcRemoveListeners(thisArg) {
         if(thisArg.$electronVue && this.$electronVue.ipcCallbacks) {
-            for(const callback of thisArg.$electronVue.ipcCallback) {
+            for(const callback of thisArg.$electronVue.ipcCallbacks) {
                 ipcRenderer.removeListener(callback.channel, callback.method);
             }
         }
