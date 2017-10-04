@@ -1,6 +1,8 @@
 # electron-vue
 Vue.js extension for Electron applications
 
+[![Build Status](https://travis-ci.org/nullkeys/electron-vue.svg?branch=feature%2Fdevelop%2Fcode-coverage)](https://travis-ci.org/nullkeys/electron-vue)
+[![Coverage Status](https://coveralls.io/repos/github/nullkeys/electron-vue/badge.svg?branch=feature%2Fdevelop%2Fcode-coverage)](https://coveralls.io/github/nullkeys/electron-vue?branch=feature%2Fdevelop%2Fcode-coverage)
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/nullkeys-electron-vue/Lobby)
 
 ## Installation
