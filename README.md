@@ -1,8 +1,6 @@
 # electron-vue
 Vue.js extension for Electron applications
 
-[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/nullkeys-electron-vue/Lobby)
-
 ## Installation
 ```
 npm install @nullkeys/electron-vue
